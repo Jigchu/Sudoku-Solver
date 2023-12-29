@@ -1,22 +1,32 @@
+from __future__ import annotations
+
 class State:
 	def __init__(self, board: list[list[int]]):
 		self.board = board
 		self.size = 9
+		self.init_instance()
+	
+	def init_instance(self):
 		self.next_moves = self.get_next_moves()
 		self.invalid = not self.is_valid()
 		self.solved = len(self.next_moves) == 0 
-	
+
 	def fill_cell(self, location: tuple[int, int], number: int):
 		self.board[location[0]][location[1]] = number
+		self.init_instance()
+	
+	def clear_cell(self, location: tuple[int, int]):
+		self.board[location[0]][location[1]] = 0
+		self.init_instance()
 
-	def fill(self):
-		unfilled = []
+	def autofill(self):
+		filled = []
 		for cell, moves in self.next_moves.items():
 			if len(moves) == 1:
 				self.fill_cell(cell, moves[0])
-			else:
-				unfilled.append(cell)
-		return unfilled
+				filled.append(cell)
+		self.init_instance()
+		return filled
 
 	def blank_cells(self):
 		locations = []
@@ -71,3 +81,12 @@ class State:
 						return False
 		
 		return True
+
+	@classmethod
+	def compare(cls, s1: State, s2: State):
+		difference = []
+		for x in range(s1.size):
+			for y in range(s1.size):
+				if s1.board[x][y] != s2.board[x][y]:
+					difference.append((x, y))
+		return difference
